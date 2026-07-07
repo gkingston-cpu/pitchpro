@@ -20,6 +20,8 @@ model Company {
   cpaComId           String?     @unique // internal CPA.com identifier, if known
   // Warm-account flag: "investor-portfolio" | "preferred-vendor" | "program-participant"
   cpaAffiliationTier String?
+  website            String?
+  linkedinUrl        String?
   createdAt          DateTime    @default(now())
   rawSignals         RawSignal[]
   signals            Signal[]

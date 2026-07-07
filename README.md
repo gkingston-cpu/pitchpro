@@ -32,11 +32,14 @@ The CPA.com affiliation tier is internal data and the highest-value, lowest-effo
 Export your list to CSV with these columns and import it:
 
 ```csv
-name,city,state,size_tier,employee_count,cpa_com_id,cpa_affiliation_tier
-Whitfield & Marsh LLP,Dallas,TX,Regional,120,CPA-1001,investor-portfolio
+name,city,state,size_tier,employee_count,cpa_com_id,cpa_affiliation_tier,website,linkedin_url
+Whitfield & Marsh LLP,Dallas,TX,Regional,120,CPA-1001,investor-portfolio,https://whitfieldmarsh.com,https://linkedin.com/company/whitfield-marsh
 ```
 
 `cpa_affiliation_tier` ∈ `investor-portfolio` | `preferred-vendor` | `program-participant` | blank.
+`website` / `linkedin_url` are optional — when blank, the firm drawer's Website/LinkedIn
+buttons fall back to a Google / LinkedIn company search for the firm name, so they work
+for all firms with zero data entry.
 
 ```bash
 npm run import:firms -- path/to/your-firms.csv

@@ -1,84 +1,75 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Search, TrendingUp, Users, Newspaper, FileText, X, RefreshCw } from "lucide-react";
+import {
+  Search,
+  TrendingUp,
+  Users,
+  Newspaper,
+  FileText,
+  X,
+  RefreshCw,
+  Globe,
+  Linkedin,
+} from "lucide-react";
 import type { CompanyView, DashboardData, SignalType } from "@/lib/types";
 import { SIGNAL_TYPES } from "@/lib/types";
 
-// UI ported from the design mockup (cpa-affiliate-dashboard.jsx) — same layout
-// and styling, wired to real data passed down from the server component.
+// FinReg-branded dashboard UI. Styling lives in app/globals.css; signal-type
+// tints are the only per-type inline styles.
 
-const SIGNAL_META: Record<SignalType, { label: string; icon: React.ElementType; color: string; bg: string }> = {
-  hire: { label: "HIRE", icon: Users, color: "#8a6d2f", bg: "#f3e6c4" },
-  ma: { label: "M&A", icon: TrendingUp, color: "#8c2f24", bg: "#f0d6d0" },
-  news: { label: "NEWS", icon: Newspaper, color: "#2f5a8c", bg: "#d6e2f0" },
-  filing: { label: "FILING", icon: FileText, color: "#2f6b4f", bg: "#d4e8dc" },
-  succession: { label: "SUCCESSION", icon: Users, color: "#6b3f8c", bg: "#e3d6f0" },
-  intent: { label: "INTENT", icon: Search, color: "#a13d2e", bg: "#f2ddd6" },
-  expansion: { label: "EXPANSION", icon: TrendingUp, color: "#2f7a6e", bg: "#d3ece7" },
-  sentiment: { label: "SENTIMENT", icon: Newspaper, color: "#7a5a2f", bg: "#eee0c9" },
-  winloss: { label: "WIN/LOSS", icon: FileText, color: "#5c3d8c", bg: "#e2d6ef" },
-  usage: { label: "USAGE", icon: TrendingUp, color: "#2f5a8c", bg: "#d6e2f0" },
-  compliance: { label: "COMPLIANCE", icon: FileText, color: "#8c2f6b", bg: "#f0d6e6" },
-  turnover: { label: "TURNOVER", icon: Users, color: "#8c5a2f", bg: "#f0e0d0" },
-  techstack: { label: "TECH RFP", icon: Search, color: "#2f8c6b", bg: "#d0f0e2" },
-};
-
-const SIGNAL_FILTER_LABELS: Record<SignalType, string> = {
-  hire: "Buyer-role hires",
-  ma: "M&A activity",
-  news: "Transition news",
-  filing: "Growth / filings",
-  succession: "Partner succession",
-  intent: "Competitor-tool intent",
-  expansion: "New office expansion",
-  sentiment: "Employee sentiment shift",
-  winloss: "Client win/loss",
-  usage: "CPA.com usage change",
-  compliance: "Compliance deadline",
-  turnover: "Staff turnover spike",
-  techstack: "Tech modernization RFP",
+const SIGNAL_META: Record<
+  SignalType,
+  { label: string; icon: React.ElementType; lt: string; lb: string; dt: string; db: string; filter: string }
+> = {
+  hire: { label: "HIRE", icon: Users, lt: "#7a5f13", lb: "#f6ecce", dt: "#e3c56a", db: "#332a10", filter: "Buyer-role hires" },
+  ma: { label: "M&A", icon: TrendingUp, lt: "#9c3a2b", lb: "#f9e3de", dt: "#ef9282", db: "#3a1d18", filter: "M&A activity" },
+  news: { label: "NEWS", icon: Newspaper, lt: "#2f5a8c", lb: "#e0eaf6", dt: "#8ab4e8", db: "#182636", filter: "Transition news" },
+  filing: { label: "FILING", icon: FileText, lt: "#2f6b4f", lb: "#ddf0e6", dt: "#7ecfa8", db: "#152b21", filter: "Growth / filings" },
+  succession: { label: "SUCCESSION", icon: Users, lt: "#6b3f8c", lb: "#eee2f7", dt: "#c79df0", db: "#2a1c36", filter: "Partner succession" },
+  intent: { label: "INTENT", icon: Search, lt: "#a13d2e", lb: "#f9e2dc", dt: "#f2957f", db: "#3a1e17", filter: "Competitor-tool intent" },
+  expansion: { label: "EXPANSION", icon: TrendingUp, lt: "#22705f", lb: "#dbf0eb", dt: "#7bd0bc", db: "#142b26", filter: "New office expansion" },
+  sentiment: { label: "SENTIMENT", icon: Newspaper, lt: "#7a5a2f", lb: "#f3e8d5", dt: "#dcb87a", db: "#312512", filter: "Employee sentiment shift" },
+  winloss: { label: "WIN/LOSS", icon: FileText, lt: "#5c3d8c", lb: "#e9e0f5", dt: "#b99cef", db: "#251c36", filter: "Client win/loss" },
+  usage: { label: "USAGE", icon: TrendingUp, lt: "#2f5a8c", lb: "#e0eaf6", dt: "#8ab4e8", db: "#182636", filter: "CPA.com usage change" },
+  compliance: { label: "COMPLIANCE", icon: FileText, lt: "#8c2f6b", lb: "#f6e0ee", dt: "#e793c8", db: "#33172a", filter: "Compliance deadline" },
+  turnover: { label: "TURNOVER", icon: Users, lt: "#8c5a2f", lb: "#f4e6d8", dt: "#dfae76", db: "#322214", filter: "Staff turnover spike" },
+  techstack: { label: "TECH RFP", icon: Search, lt: "#1f7a5c", lb: "#daf0e7", dt: "#75d1ac", db: "#132b22", filter: "Tech modernization RFP" },
 };
 
 // How many days one refresh cycle covers (Mon → Wed → Mon).
 const CYCLE_DAYS = 4;
 
 function Stamp({ type }: { type: SignalType }) {
-  const meta = SIGNAL_META[type];
-  const Icon = meta.icon;
+  const m = SIGNAL_META[type];
+  const Icon = m.icon;
   return (
     <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontFamily: "'Courier New', ui-monospace, monospace",
-        fontSize: "10.5px",
-        fontWeight: 700,
-        letterSpacing: "0.06em",
-        color: meta.color,
-        border: `1.5px solid ${meta.color}`,
-        borderRadius: "3px",
-        padding: "2px 6px",
-        transform: `rotate(${(type.charCodeAt(0) % 5) - 2}deg)`,
-        background: meta.bg,
-        whiteSpace: "nowrap",
-      }}
+      className="stamp"
+      style={
+        {
+          color: `light-dark(${m.lt}, ${m.dt})`,
+          background: `light-dark(${m.lb}, ${m.db})`,
+        } as React.CSSProperties
+      }
     >
       <Icon size={11} strokeWidth={2.5} />
-      {meta.label}
+      {m.label}
     </span>
   );
 }
 
 function HeatBar({ heat, max }: { heat: number; max: number }) {
   const pct = Math.min(100, Math.round((heat / max) * 100));
-  const color = pct > 60 ? "#8c2f24" : pct > 30 ? "#8a6d2f" : "#3d5a6c";
   return (
-    <div style={{ width: "64px", height: "6px", background: "#e4ddc9", borderRadius: "2px", overflow: "hidden" }}>
-      <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: "2px" }} />
+    <div className={`heatbar${pct <= 20 ? " cool" : ""}`}>
+      <i style={{ width: `${Math.max(pct, 4)}%` }} />
     </div>
   );
+}
+
+function age(d: number) {
+  return d === 0 ? "Today" : `${d}d ago`;
 }
 
 export default function Dashboard({
@@ -109,16 +100,14 @@ export default function Dashboard({
       return true;
     });
     return [...rows].sort((a, b) => {
-      if (sortKey === "heat") return b.heat - a.heat;
       if (sortKey === "name") return a.name.localeCompare(b.name);
       if (sortKey === "employees") return b.employees - a.employees;
-      return 0;
+      return b.heat - a.heat;
     });
   }, [companies, query, stateFilter, signalFilter, sortKey]);
 
-  const topSignals = companies.filter((c) => c.signals.length > 0).slice(0, 6);
-  const warmAccounts = companies.filter((c) => c.cpaTier).slice(0, 8);
-  const warmTotal = companies.filter((c) => c.cpaTier).length;
+  const topFirms = companies.filter((c) => c.signals.length > 0).slice(0, 6);
+  const warmAll = companies.filter((c) => c.cpaTier);
   const counts = SIGNAL_TYPES.reduce<Record<string, number>>((acc, t) => {
     acc[t] = companies.filter((c) => c.signals.some((s) => s.type === t)).length;
     return acc;
@@ -127,279 +116,257 @@ export default function Dashboard({
     c.signals.some((s) => s.daysAgo <= CYCLE_DAYS),
   ).length;
 
-  const paper = "#f2ede1";
-  const ink = "#242118";
-  const rule = "#c9c0a8";
+  const lastRefresh = data.lastRefreshAt
+    ? new Date(data.lastRefreshAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    : null;
 
   const briefFallback =
     companies.length === 0
-      ? "No firms loaded yet. Import your firm list (npm run import:firms) and run a refresh (npm run refresh) to populate this brief."
-      : `${activeThisCycle} firms show fresh activity this cycle.` +
-        (topSignals[0]
-          ? ` ${topSignals[0].name} is the top priority — ${topSignals[0].signals[0].headline.toLowerCase()}.`
-          : " No synthesized signals yet — run a refresh to generate them.") +
-        (warmTotal > 0
-          ? ` ${warmTotal} tracked firm${warmTotal === 1 ? "" : "s"} are already CPA.com-affiliated — treat these as warm, low-friction intros regardless of other activity.`
-          : "");
+      ? "No firms loaded yet. Import your firm list and run a refresh to populate this brief."
+      : "No brief generated yet — it appears after the first refresh run.";
 
   return (
-    <div style={{ minHeight: "100vh", background: paper, color: ink, fontFamily: "Georgia, 'Times New Roman', serif" }}>
-      {previewMode && (
-        <div style={{ background: "#8c2f24", color: "#f2ede1", padding: "6px 28px", fontFamily: "ui-monospace, monospace", fontSize: "11.5px", letterSpacing: "0.04em" }}>
-          OPEN PREVIEW MODE — no login configured. Set GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / ALLOWED_EMAILS before deploying.
-        </div>
-      )}
-
-      {/* Header */}
-      <div style={{ borderBottom: `2px solid ${ink}`, padding: "20px 28px 16px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "12px" }}>
-          <div>
-            <div style={{ fontFamily: "ui-monospace, 'Courier New', monospace", fontSize: "11px", letterSpacing: "0.12em", color: "#6b6350", marginBottom: "4px" }}>
-              SALES INTELLIGENCE · CPA.COM AFFILIATE NETWORK
-            </div>
-            <h1 style={{ margin: 0, fontSize: "28px", fontWeight: 400, letterSpacing: "-0.01em" }}>
-              The Ledger — Mon/Wed Brief
-            </h1>
+    <div>
+      <div className="appbar">
+        <div className="brand">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/finreg-logo-white.png" alt="FinReg Global" />
+          <div className="divider" />
+          <div className="app">
+            <b>The Ledger</b>
+            <span>CPA.com Affiliate Signals &middot; Mon/Wed Brief</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontFamily: "ui-monospace, monospace", fontSize: "11.5px", color: "#6b6350" }}>
-            <RefreshCw size={13} />
+        </div>
+        <div className="bar-right">
+          <RefreshCw size={13} />
+          <span>
             Refreshes Mon &amp; Wed, 6:00 AM ET
-            {data.lastRefreshAt
-              ? ` · last refresh ${new Date(data.lastRefreshAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
-              : " · no refresh run yet"}
-          </div>
+            {lastRefresh ? ` · last ${lastRefresh}` : ""}
+          </span>
+          {previewMode && <span className="previewchip">PREVIEW — NO LOGIN</span>}
         </div>
       </div>
 
-      {/* Stat strip */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", borderBottom: `1px solid ${rule}` }}>
-        {[
-          { label: "Firms tracked", value: totalTracked.toLocaleString() },
-          { label: "New signals this cycle", value: activeThisCycle },
-          { label: "CPA.com-affiliated (warm)", value: warmTotal },
-          { label: "Buyer-role hires", value: counts.hire },
-          { label: "M&A activity", value: counts.ma },
-          { label: "Compliance-deadline pressure", value: counts.compliance },
-        ].map((s, idx) => (
-          <div key={idx} style={{ padding: "14px 20px", borderRight: idx < 5 ? `1px solid ${rule}` : "none" }}>
-            <div style={{ fontFamily: "ui-monospace, monospace", fontSize: "22px", fontWeight: 700 }}>{s.value}</div>
-            <div style={{ fontSize: "11px", color: "#6b6350", textTransform: "uppercase", letterSpacing: "0.05em" }}>{s.label}</div>
-          </div>
-        ))}
-      </div>
+      <div className="wrap">
+        <div className="stats">
+          {(
+            [
+              ["Firms tracked", totalTracked.toLocaleString(), false],
+              ["New signals this cycle", activeThisCycle, false],
+              ["CPA.com-affiliated (warm)", warmAll.length, true],
+              ["Buyer-role hires", counts.hire, false],
+              ["M&A activity", counts.ma, false],
+              ["Compliance pressure", counts.compliance, false],
+            ] as [string, string | number, boolean][]
+          ).map(([label, v, gold]) => (
+            <div key={label} className={`stat${gold ? " gold" : ""}`}>
+              <b>{v}</b>
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
 
-      <div style={{ padding: "24px 28px", display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: "28px" }}>
-        {/* Agent brief */}
-        <div style={{ background: "#fbf9f2", border: `1px solid ${rule}`, borderRadius: "2px", padding: "16px 18px", position: "relative" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-            <span style={{ fontFamily: "ui-monospace, monospace", fontSize: "11px", letterSpacing: "0.08em", color: "#6b6350", textTransform: "uppercase" }}>
-              Agent brief
+        <div className="brief">
+          <div className="brief-head">
+            <span className="aichip">AI BRIEF</span>
+            <span className="brief-when">
               {brief
-                ? ` — generated ${new Date(brief.generatedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}`
+                ? `Generated ${new Date(brief.generatedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}`
                 : ""}
             </span>
-            <span style={{ fontFamily: "ui-monospace, monospace", fontSize: "10.5px", border: `1px solid ${ink}`, borderRadius: "2px", padding: "1px 6px", transform: "rotate(-2deg)" }}>
-              AUTO-DRAFTED
-            </span>
           </div>
-          <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.6 }}>{brief?.text ?? briefFallback}</p>
+          <p>{brief?.text ?? briefFallback}</p>
         </div>
 
-        {/* Warm accounts */}
-        {warmAccounts.length > 0 && (
-          <div>
-            <h2 style={{ fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, margin: "0 0 12px", color: "#4a4536" }}>
-              Warm accounts — already in the CPA.com ecosystem
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "10px" }}>
-              {warmAccounts.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setSelected(c)}
-                  style={{
-                    textAlign: "left", background: "#fbf9f2", border: `1px solid ${rule}`,
-                    borderLeft: "4px solid #6b3f8c", borderRadius: "2px", padding: "10px 12px",
-                    cursor: "pointer", fontFamily: "inherit", color: "inherit",
-                  }}
-                >
-                  <div style={{ fontWeight: 700, fontSize: "13.5px" }}>{c.name}</div>
-                  <div style={{ fontSize: "11px", color: "#6b3f8c", marginTop: "2px", fontWeight: 700 }}>{c.cpaTier}</div>
-                  <div style={{ fontSize: "11px", color: "#6b6350", marginTop: "2px", fontFamily: "ui-monospace, monospace" }}>{c.city}, {c.state}</div>
+        {warmAll.length > 0 && (
+          <section>
+            <h2 className="section">Warm accounts — already in the CPA.com ecosystem</h2>
+            <div className="warm-grid">
+              {warmAll.slice(0, 8).map((c) => (
+                <button key={c.id} className="warm-card" onClick={() => setSelected(c)}>
+                  <div className="nm">{c.name}</div>
+                  <div className="tier">{c.cpaTier}</div>
+                  <div className="loc">
+                    {c.city}, {c.state}
+                  </div>
                 </button>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Signal feed */}
-        {topSignals.length > 0 && (
-          <div>
-            <h2 style={{ fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, margin: "0 0 12px", color: "#4a4536" }}>
-              Today&apos;s priority outreach
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "12px" }}>
-              {topSignals.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setSelected(c)}
-                  style={{
-                    textAlign: "left",
-                    background: "#fbf9f2",
-                    border: `1px solid ${rule}`,
-                    borderLeft: `4px solid ${SIGNAL_META[c.signals[0].type].color}`,
-                    borderRadius: "2px",
-                    padding: "12px 14px",
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                    color: "inherit",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "8px" }}>
-                    <div style={{ fontWeight: 700, fontSize: "14.5px" }}>{c.name}</div>
+        {topFirms.length > 0 && (
+          <section>
+            <h2 className="section">Today&apos;s priority outreach</h2>
+            <div className="feed-grid">
+              {topFirms.map((c) => (
+                <button key={c.id} className="feed-card" onClick={() => setSelected(c)}>
+                  <div className="feed-top">
+                    <div className="nm">{c.name}</div>
                     <Stamp type={c.signals[0].type} />
                   </div>
-                  <div style={{ fontSize: "11.5px", color: "#6b6350", marginTop: "2px", fontFamily: "ui-monospace, monospace" }}>
-                    {c.city}, {c.state} · {c.size} · {c.employees} employees
+                  <div className="feed-meta">
+                    {c.city}, {c.state} &middot; {c.size} &middot; {c.employees} employees
                   </div>
-                  <div style={{ fontSize: "13px", marginTop: "8px", lineHeight: 1.4 }}>{c.signals[0].headline}</div>
-                  <div style={{ fontSize: "11px", color: "#6b6350", marginTop: "2px" }}>
-                    {c.signals[0].daysAgo === 0 ? "Today" : `${c.signals[0].daysAgo}d ago`}
-                  </div>
+                  <div className="feed-headline">{c.signals[0].headline}</div>
+                  <div className="feed-age">{age(c.signals[0].daysAgo)}</div>
                 </button>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Filters */}
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", borderTop: `1px solid ${rule}`, paddingTop: "18px" }}>
-          <div style={{ position: "relative", flex: "1 1 220px" }}>
-            <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#8a8362" }} />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search firm name…"
-              style={{
-                width: "100%", boxSizing: "border-box", padding: "8px 10px 8px 30px",
-                border: `1px solid ${rule}`, borderRadius: "2px", background: "#fbf9f2",
-                fontFamily: "inherit", fontSize: "13px", color: ink,
-              }}
-            />
+        <div>
+          <h2 className="section">All tracked firms</h2>
+          <div className="filters">
+            <div className="searchbox">
+              <Search size={14} />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search firm name…"
+                aria-label="Search firm name"
+              />
+            </div>
+            <select value={stateFilter} onChange={(e) => setStateFilter(e.target.value)} aria-label="Filter by state">
+              <option value="ALL">All states</option>
+              {states.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            <select value={signalFilter} onChange={(e) => setSignalFilter(e.target.value)} aria-label="Filter by signal type">
+              <option value="ALL">All signal types</option>
+              {SIGNAL_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {SIGNAL_META[t].filter}
+                </option>
+              ))}
+            </select>
+            <select value={sortKey} onChange={(e) => setSortKey(e.target.value)} aria-label="Sort">
+              <option value="heat">Sort: signal heat</option>
+              <option value="name">Sort: name</option>
+              <option value="employees">Sort: firm size</option>
+            </select>
           </div>
-          <select value={stateFilter} onChange={(e) => setStateFilter(e.target.value)} style={selectStyle(rule)}>
-            <option value="ALL">All states</option>
-            {states.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <select value={signalFilter} onChange={(e) => setSignalFilter(e.target.value)} style={selectStyle(rule)}>
-            <option value="ALL">All signal types</option>
-            {SIGNAL_TYPES.map((t) => (
-              <option key={t} value={t}>{SIGNAL_FILTER_LABELS[t]}</option>
-            ))}
-          </select>
-          <select value={sortKey} onChange={(e) => setSortKey(e.target.value)} style={selectStyle(rule)}>
-            <option value="heat">Sort: signal heat</option>
-            <option value="name">Sort: name</option>
-            <option value="employees">Sort: firm size</option>
-          </select>
+
+          <div className="tablewrap">
+            <div className="tablescroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Firm</th>
+                    <th>Location</th>
+                    <th>Size</th>
+                    <th>Employees</th>
+                    <th>Latest signal</th>
+                    <th>Heat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((c) => (
+                    <tr
+                      key={c.id}
+                      tabIndex={0}
+                      aria-label={`Open ${c.name} details`}
+                      onClick={() => setSelected(c)}
+                      onKeyDown={(e) => e.key === "Enter" && setSelected(c)}
+                    >
+                      <td className="nm">
+                        {c.name}
+                        {c.cpaTier && <span className="warmtag">WARM</span>}
+                      </td>
+                      <td className="dim">
+                        {c.city}, {c.state}
+                      </td>
+                      <td className="dim">{c.size}</td>
+                      <td className="num">{c.employees}</td>
+                      <td>
+                        {c.signals.length > 0 ? (
+                          <span className="sig-cell">
+                            <Stamp type={c.signals[0].type} />
+                            <span className="hl">{c.signals[0].headline}</span>
+                          </span>
+                        ) : (
+                          <span className="quiet">No recent activity</span>
+                        )}
+                      </td>
+                      <td>
+                        <HeatBar heat={c.heat} max={maxHeat} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filtered.length === 0 && (
+                <div className="empty">
+                  {companies.length === 0
+                    ? "No firms loaded yet — import your firm list to get started."
+                    : "No firms match those filters."}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Table */}
-        <div style={{ border: `1px solid ${rule}`, borderRadius: "2px", overflow: "hidden" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 2.5fr 0.8fr", background: "#e9e2cc", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#4a4536", fontWeight: 700 }}>
-            <div style={cellStyle}>Firm</div>
-            <div style={cellStyle}>Location</div>
-            <div style={cellStyle}>Size</div>
-            <div style={cellStyle}>Employees</div>
-            <div style={cellStyle}>Latest signal</div>
-            <div style={cellStyle}>Heat</div>
-          </div>
-          <div style={{ maxHeight: "480px", overflowY: "auto" }}>
-            {filtered.map((c) => (
-              <div
-                key={c.id}
-                onClick={() => setSelected(c)}
-                style={{
-                  display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 2.5fr 0.8fr",
-                  borderTop: `1px solid ${rule}`, cursor: "pointer", fontSize: "13px", background: "#fbf9f2",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f2ecd8")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#fbf9f2")}
-              >
-                <div style={{ ...cellStyle, fontWeight: 700, gap: "6px" }}>
-                  {c.name}
-                  {c.cpaTier && (
-                    <span style={{ fontSize: "9.5px", fontWeight: 700, color: "#6b3f8c", border: "1px solid #6b3f8c", borderRadius: "2px", padding: "1px 4px" }}>
-                      WARM
-                    </span>
-                  )}
-                </div>
-                <div style={{ ...cellStyle, fontFamily: "ui-monospace, monospace", fontSize: "12px" }}>{c.city}, {c.state}</div>
-                <div style={cellStyle}>{c.size}</div>
-                <div style={{ ...cellStyle, fontFamily: "ui-monospace, monospace" }}>{c.employees}</div>
-                <div style={cellStyle}>
-                  {c.signals.length > 0 ? (
-                    <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <Stamp type={c.signals[0].type} />
-                      <span style={{ color: "#4a4536", fontSize: "12px" }}>{c.signals[0].headline}</span>
-                    </span>
-                  ) : (
-                    <span style={{ color: "#a39d84", fontSize: "12px" }}>No recent activity</span>
-                  )}
-                </div>
-                <div style={cellStyle}><HeatBar heat={c.heat} max={maxHeat} /></div>
-              </div>
-            ))}
-            {filtered.length === 0 && (
-              <div style={{ padding: "24px", textAlign: "center", color: "#8a8362", fontSize: "13px" }}>
-                {companies.length === 0
-                  ? "No firms loaded yet — import your firm list with `npm run import:firms <csv>`."
-                  : "No firms match those filters."}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div style={{ fontSize: "11.5px", color: "#8a8362", fontFamily: "ui-monospace, monospace" }}>
-          Refreshes automatically every Monday and Wednesday morning from CPA.com affiliate records, trade press, news, and job-board sources.
+        <div className="foot">
+          The Ledger refreshes automatically every Monday and Wednesday morning from CPA.com
+          affiliate records, trade press, news, and job-board sources.
         </div>
       </div>
 
-      {/* Detail drawer */}
       {selected && (
-        <div
-          onClick={() => setSelected(null)}
-          style={{ position: "fixed", inset: 0, background: "rgba(36,33,24,0.4)", display: "flex", justifyContent: "flex-end", zIndex: 50 }}
-        >
+        <div className="overlay" onClick={() => setSelected(null)}>
           <div
+            className="drawer"
+            role="dialog"
+            aria-label={`${selected.name} details`}
             onClick={(e) => e.stopPropagation()}
-            style={{ width: "min(420px, 92vw)", height: "100%", background: paper, borderLeft: `2px solid ${ink}`, padding: "24px", overflowY: "auto", boxSizing: "border-box" }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+            <div className="drawer-top">
               <div>
-                <div style={{ fontFamily: "ui-monospace, monospace", fontSize: "11px", color: "#6b6350" }}>{selected.city}, {selected.state} · {selected.size} firm</div>
-                <h2 style={{ margin: "4px 0 0", fontSize: "22px", fontWeight: 400 }}>{selected.name}</h2>
-                {selected.cpaTier && (
-                  <div style={{ fontSize: "11.5px", color: "#6b3f8c", marginTop: "4px", fontWeight: 700 }}>{selected.cpaTier}</div>
-                )}
+                <div className="loc">
+                  {selected.city}, {selected.state} &middot; {selected.size} firm
+                </div>
+                <h2 className="firm">{selected.name}</h2>
+                {selected.cpaTier && <div className="tier">{selected.cpaTier}</div>}
               </div>
-              <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", cursor: "pointer", color: ink }}>
+              <button className="closebtn" aria-label="Close" onClick={() => setSelected(null)}>
                 <X size={20} />
               </button>
             </div>
-            <div style={{ marginTop: "18px", fontSize: "12px", color: "#6b6350" }}>{selected.employees} employees · Heat score {selected.heat}</div>
 
-            <h3 style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.06em", color: "#4a4536", marginTop: "24px" }}>Signals (last 30 days)</h3>
-            {selected.signals.length === 0 && <div style={{ fontSize: "13px", color: "#8a8362", marginTop: "8px" }}>No flagged activity — steady state.</div>}
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "10px" }}>
+            <div className="meta">
+              {selected.employees} employees &middot; Heat score {selected.heat}
+            </div>
+
+            <div className="linkrow">
+              <a className="linkbtn" href={selected.website} target="_blank" rel="noopener noreferrer">
+                <Globe size={13} />
+                Website
+              </a>
+              <a className="linkbtn" href={selected.linkedin} target="_blank" rel="noopener noreferrer">
+                <Linkedin size={13} />
+                LinkedIn
+              </a>
+            </div>
+
+            <h3>Signals — last 30 days</h3>
+            {selected.signals.length === 0 && (
+              <div className="none">No flagged activity — steady state.</div>
+            )}
+            <div className="sigs">
               {selected.signals.map((s, i) => (
-                <div key={i} style={{ border: `1px solid ${rule}`, borderRadius: "2px", padding: "12px", background: "#fbf9f2" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div key={i} className="sig">
+                  <div className="sig-head">
                     <Stamp type={s.type} />
-                    <span style={{ fontSize: "11px", color: "#8a8362", fontFamily: "ui-monospace, monospace" }}>{s.daysAgo === 0 ? "Today" : `${s.daysAgo}d ago`}</span>
+                    <span className="sig-age">{age(s.daysAgo)}</span>
                   </div>
-                  <div style={{ fontSize: "14px", marginTop: "8px", fontWeight: 700 }}>{s.headline}</div>
-                  <div style={{ fontSize: "12.5px", marginTop: "6px", lineHeight: 1.5, color: "#4a4536" }}>
-                    <span style={{ fontWeight: 700 }}>Pitch angle: </span>{s.pitch}
+                  <div className="sig-hl">{s.headline}</div>
+                  <div className="sig-pitch">
+                    <b>Pitch angle</b> &middot; {s.pitch}
                   </div>
                 </div>
               ))}
@@ -410,11 +377,3 @@ export default function Dashboard({
     </div>
   );
 }
-
-function selectStyle(rule: string): React.CSSProperties {
-  return {
-    padding: "8px 10px", border: `1px solid ${rule}`, borderRadius: "2px",
-    background: "#fbf9f2", fontFamily: "inherit", fontSize: "12.5px", color: "#242118",
-  };
-}
-const cellStyle: React.CSSProperties = { padding: "10px 12px", display: "flex", alignItems: "center" };

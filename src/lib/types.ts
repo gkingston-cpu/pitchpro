@@ -40,6 +40,9 @@ export interface CompanyView {
   signals: SignalView[];
   heat: number;
   cpaTier: string | null;
+  /** Direct URL when on file, otherwise a search link that works for any firm name. */
+  website: string;
+  linkedin: string;
 }
 
 export interface DashboardData {

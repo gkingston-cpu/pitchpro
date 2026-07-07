@@ -4,6 +4,16 @@ import { CPA_TIER_LABELS, type CompanyView, type DashboardData, type SignalType 
 
 const WINDOW_DAYS = 30;
 
+// When a firm's URLs aren't on file yet, fall back to search links that work
+// for any firm name — no data entry required to make the buttons useful.
+function googleSearchUrl(c: { name: string; city: string | null; state: string | null }) {
+  const q = [c.name, c.city, c.state, "CPA"].filter(Boolean).join(" ");
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+}
+function linkedinSearchUrl(c: { name: string }) {
+  return `https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(c.name)}`;
+}
+
 export async function getDashboardData(): Promise<DashboardData> {
   const since = new Date(Date.now() - WINDOW_DAYS * 86_400_000);
   const now = new Date();
@@ -36,6 +46,8 @@ export async function getDashboardData(): Promise<DashboardData> {
       cpaTier: c.cpaAffiliationTier
         ? (CPA_TIER_LABELS[c.cpaAffiliationTier] ?? c.cpaAffiliationTier)
         : null,
+      website: c.website ?? googleSearchUrl(c),
+      linkedin: c.linkedinUrl ?? linkedinSearchUrl(c),
     }))
     .sort((a, b) => b.heat - a.heat);
 

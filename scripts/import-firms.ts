@@ -2,8 +2,10 @@
 //   npm run import:firms -- data/firms.sample.csv
 //
 // Expected columns (header row required; extras ignored):
-//   name, city, state, size_tier, employee_count, cpa_com_id, cpa_affiliation_tier
+//   name, city, state, size_tier, employee_count, cpa_com_id, cpa_affiliation_tier,
+//   website, linkedin_url
 // cpa_affiliation_tier: investor-portfolio | preferred-vendor | program-participant | (blank)
+// website / linkedin_url are optional — the app falls back to search links when blank.
 //
 // Rows are upserted by cpa_com_id when present, otherwise by exact name — safe
 // to re-run whenever the internal list changes.
@@ -41,6 +43,8 @@ async function main() {
       employeeCount: row.employee_count ? parseInt(row.employee_count, 10) || null : null,
       cpaComId: row.cpa_com_id || null,
       cpaAffiliationTier: tier,
+      website: row.website || null,
+      linkedinUrl: row.linkedin_url || null,
     };
 
     if (data.cpaComId) {

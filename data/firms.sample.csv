@@ -1,5 +1,5 @@
-name,city,state,size_tier,employee_count,cpa_com_id,cpa_affiliation_tier
-Whitfield & Marsh LLP,Dallas,TX,Regional,120,CPA-1001,investor-portfolio
+name,city,state,size_tier,employee_count,cpa_com_id,cpa_affiliation_tier,website,linkedin_url
+Whitfield & Marsh LLP,Dallas,TX,Regional,120,CPA-1001,investor-portfolio,,
 Sterling Advisory Group,Chicago,IL,National,340,CPA-1002,preferred-vendor
 Kessler & Boone CPAs,Atlanta,GA,Local,28,CPA-1003,program-participant
 Ashcroft Partners,Boston,MA,Regional,95,CPA-1004,
