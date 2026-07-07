@@ -1,0 +1,90 @@
+// Data model from the build spec (§4). SQLite for dev; switch provider to
+// "postgresql" + point DATABASE_URL at Supabase/Neon for production (see README).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id                 Int         @id @default(autoincrement())
+  name               String
+  city               String?
+  state              String?
+  sizeTier           String? // Local | Regional | National
+  employeeCount      Int?
+  cpaComId           String?     @unique // internal CPA.com identifier, if known
+  // Warm-account flag: "investor-portfolio" | "preferred-vendor" | "program-participant"
+  cpaAffiliationTier String?
+  createdAt          DateTime    @default(now())
+  rawSignals         RawSignal[]
+  signals            Signal[]
+
+  @@index([name])
+  @@map("companies")
+}
+
+// Normalized output of every source connector, before synthesis.
+model RawSignal {
+  id         Int      @id @default(autoincrement())
+  companyId  Int
+  source     String // "newsapi" | "trade-press" | "adzuna" | "affiliation-import" | ...
+  signalType String // hire | ma | news | filing | succession | intent | expansion | sentiment | winloss | usage | compliance | turnover | techstack
+  rawPayload String // JSON blob of whatever the source returned
+  // Stable per-source id (url, posting id, ...) so re-runs are idempotent.
+  externalId String
+  detectedAt DateTime @default(now())
+  // Set once the synthesis agent has consumed this row.
+  processedAt DateTime?
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([source, externalId])
+  @@index([companyId, processedAt])
+  @@map("raw_signals")
+}
+
+// Synthesis-agent output — what the dashboard renders.
+model Signal {
+  id               Int      @id @default(autoincrement())
+  companyId        Int
+  signalType       String
+  headline         String
+  pitchAngle       String
+  confidence       Float    @default(1)
+  // Event date the signal refers to; "days ago" is computed from this at read time.
+  occurredAt       DateTime @default(now())
+  heatContribution Int      @default(0)
+  createdAt        DateTime @default(now())
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, occurredAt])
+  @@map("signals")
+}
+
+// One row per refresh cycle — the "Agent Brief" paragraph at the top of the dashboard.
+model Brief {
+  id            Int      @id @default(autoincrement())
+  briefDate     DateTime @default(now())
+  summaryText   String
+  topCompanyIds String // JSON array of company ids
+  createdAt     DateTime @default(now())
+
+  @@map("daily_briefs")
+}
+
+// Per-source log lines from each refresh, so one broken source is visible without blocking the rest.
+model ConnectorRun {
+  id         Int      @id @default(autoincrement())
+  source     String
+  startedAt  DateTime @default(now())
+  finishedAt DateTime?
+  ok         Boolean  @default(false)
+  itemsFound Int      @default(0)
+  error      String?
+
+  @@map("connector_runs")
+}
