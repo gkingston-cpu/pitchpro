@@ -29,6 +29,8 @@ export interface SignalView {
   pitch: string;
   daysAgo: number;
   sourceUrl: string | null;
+  /** This signal's recency-decayed heat, computed at read time. */
+  heat: number;
 }
 
 export interface CompanyView {

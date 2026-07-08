@@ -1,7 +1,10 @@
 import type { SignalType } from "./types";
 
-// Recency-decayed heat, matching the mockup: a signal is worth up to 30 points
-// on day 0, fading to 0 after 30 days — scaled by how strong the signal type is.
+// The dashboard tracks leads across a 6-week horizon (with a 7-day "hot" view).
+export const HORIZON_DAYS = 42;
+
+// Recency-decayed heat: a signal is worth up to 42 points on day 0, fading to
+// 0 at the 6-week horizon — scaled by how strong the signal type is.
 const SIGNAL_WEIGHTS: Record<SignalType, number> = {
   intent: 1.5, // named-competitor job posting: active buying intent, highest tier
   techstack: 1.4, // budgeted modernization initiative
@@ -19,7 +22,7 @@ const SIGNAL_WEIGHTS: Record<SignalType, number> = {
 };
 
 export function heatContribution(type: SignalType, daysAgo: number): number {
-  const recency = Math.max(0, 30 - daysAgo);
+  const recency = Math.max(0, HORIZON_DAYS - daysAgo);
   return Math.round(recency * (SIGNAL_WEIGHTS[type] ?? 1));
 }
 

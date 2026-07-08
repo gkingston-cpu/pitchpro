@@ -124,6 +124,37 @@ body {
   gap: 28px;
 }
 
+/* Hot / All window toggle */
+.windowbar {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+  box-shadow: var(--shadow);
+  justify-self: start;
+}
+.windowbtn {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--muted);
+  padding: 7px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.windowbtn:hover {
+  color: var(--ink);
+}
+.windowbtn.active {
+  background: var(--gold);
+  color: #181818;
+}
+
 /* Stat cards */
 .stats {
   display: grid;

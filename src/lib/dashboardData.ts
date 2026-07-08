@@ -1,8 +1,6 @@
 import { prisma } from "./db";
-import { daysAgo } from "./heat";
+import { daysAgo, heatContribution, HORIZON_DAYS } from "./heat";
 import { CPA_TIER_LABELS, type CompanyView, type DashboardData, type SignalType } from "./types";
-
-const WINDOW_DAYS = 30;
 
 // When a firm's URLs aren't on file yet, fall back to search links that work
 // for any firm name — no data entry required to make the buttons useful.
@@ -15,7 +13,7 @@ function linkedinSearchUrl(c: { name: string }) {
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
-  const since = new Date(Date.now() - WINDOW_DAYS * 86_400_000);
+  const since = new Date(Date.now() - HORIZON_DAYS * 86_400_000);
   const now = new Date();
 
   const [companies, brief, lastRun] = await Promise.all([
@@ -29,27 +27,36 @@ export async function getDashboardData(): Promise<DashboardData> {
   ]);
 
   const views: CompanyView[] = companies
-    .map((c) => ({
-      id: c.id,
-      name: c.name,
-      city: c.city ?? "—",
-      state: c.state ?? "—",
-      size: c.sizeTier ?? "—",
-      employees: c.employeeCount ?? 0,
-      signals: c.signals.map((s) => ({
-        type: s.signalType as SignalType,
-        headline: s.headline,
-        pitch: s.pitchAngle,
-        daysAgo: daysAgo(s.occurredAt, now),
-        sourceUrl: s.sourceUrl,
-      })),
-      heat: c.signals.reduce((acc, s) => acc + s.heatContribution, 0),
-      cpaTier: c.cpaAffiliationTier
-        ? (CPA_TIER_LABELS[c.cpaAffiliationTier] ?? c.cpaAffiliationTier)
-        : null,
-      website: c.website ?? googleSearchUrl(c),
-      linkedin: c.linkedinUrl ?? linkedinSearchUrl(c),
-    }))
+    .map((c) => {
+      const signals = c.signals.map((s) => {
+        const d = daysAgo(s.occurredAt, now);
+        return {
+          type: s.signalType as SignalType,
+          headline: s.headline,
+          pitch: s.pitchAngle,
+          daysAgo: d,
+          sourceUrl: s.sourceUrl,
+          // Recomputed at read time so heat keeps decaying between refreshes.
+          heat: heatContribution(s.signalType as SignalType, d),
+        };
+      });
+      return {
+        id: c.id,
+        name: c.name,
+        city: c.city ?? "—",
+        state: c.state ?? "—",
+        size: c.sizeTier ?? "—",
+        employees: c.employeeCount ?? 0,
+        signals,
+        // Full-horizon heat; the client re-sums per selected window (7d/6w).
+        heat: signals.reduce((acc, s) => acc + s.heat, 0),
+        cpaTier: c.cpaAffiliationTier
+          ? (CPA_TIER_LABELS[c.cpaAffiliationTier] ?? c.cpaAffiliationTier)
+          : null,
+        website: c.website ?? googleSearchUrl(c),
+        linkedin: c.linkedinUrl ?? linkedinSearchUrl(c),
+      };
+    })
     .sort((a, b) => b.heat - a.heat);
 
   return {

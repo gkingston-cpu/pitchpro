@@ -40,6 +40,14 @@ const SIGNAL_META: Record<
 // How many days one refresh cycle covers (Mon → Wed → Mon).
 const CYCLE_DAYS = 4;
 
+// Lead windows: "hot" is what's new since roughly last week's briefs;
+// "all" is every lead still alive across the 6-week horizon.
+const WINDOWS = {
+  hot: { days: 7, label: "Hot leads · 7 days" },
+  all: { days: 42, label: "All leads · 6 weeks" },
+} as const;
+type WindowKey = keyof typeof WINDOWS;
+
 function Stamp({ type }: { type: SignalType }) {
   const m = SIGNAL_META[type];
   const Icon = m.icon;
@@ -79,12 +87,28 @@ export default function Dashboard({
   data: DashboardData;
   previewMode: boolean;
 }) {
-  const { companies, totalTracked, brief } = data;
+  const { totalTracked, brief } = data;
+  const [window_, setWindow] = useState<WindowKey>("hot");
   const [query, setQuery] = useState("");
   const [stateFilter, setStateFilter] = useState("ALL");
   const [signalFilter, setSignalFilter] = useState("ALL");
   const [sortKey, setSortKey] = useState("heat");
-  const [selected, setSelected] = useState<CompanyView | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  // Drawer always shows the firm's full 6-week history, whatever the window.
+  const selected = data.companies.find((c) => c.id === selectedId) ?? null;
+  const setSelected = (c: CompanyView | null) => setSelectedId(c?.id ?? null);
+
+  // Re-scope every firm's signals and heat to the active window. The drawer
+  // (opened from `selected`) still shows the full 6-week history.
+  const companies = useMemo(() => {
+    const days = WINDOWS[window_].days;
+    return data.companies
+      .map((c) => {
+        const signals = c.signals.filter((s) => s.daysAgo <= days);
+        return { ...c, signals, heat: signals.reduce((acc, s) => acc + s.heat, 0) };
+      })
+      .sort((a, b) => b.heat - a.heat);
+  }, [data.companies, window_]);
 
   const maxHeat = Math.max(...companies.map((c) => c.heat), 1);
   const states = useMemo(
@@ -157,6 +181,20 @@ export default function Dashboard({
       </div>
 
       <div className="wrap">
+        <div className="windowbar" role="tablist" aria-label="Lead window">
+          {(Object.keys(WINDOWS) as WindowKey[]).map((k) => (
+            <button
+              key={k}
+              role="tab"
+              aria-selected={window_ === k}
+              className={`windowbtn${window_ === k ? " active" : ""}`}
+              onClick={() => setWindow(k)}
+            >
+              {WINDOWS[k].label}
+            </button>
+          ))}
+        </div>
+
         <div className="stats">
           {(
             [
@@ -206,7 +244,9 @@ export default function Dashboard({
 
         {topFirms.length > 0 && (
           <section>
-            <h2 className="section">Today&apos;s priority outreach</h2>
+            <h2 className="section">
+              {window_ === "hot" ? "Today's priority outreach" : "Priority outreach — last 6 weeks"}
+            </h2>
             <div className="feed-grid">
               {topFirms.map(({ company: c, signal }) => (
                 <button key={c.id} className="feed-card" onClick={() => setSelected(c)}>
@@ -363,7 +403,7 @@ export default function Dashboard({
               </a>
             </div>
 
-            <h3>Signals — last 30 days</h3>
+            <h3>Signals — last 6 weeks</h3>
             {selected.signals.length === 0 && (
               <div className="none">No flagged activity — steady state.</div>
             )}
