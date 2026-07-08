@@ -106,7 +106,16 @@ export default function Dashboard({
     });
   }, [companies, query, stateFilter, signalFilter, sortKey]);
 
-  const topFirms = companies.filter((c) => c.signals.length > 0).slice(0, 6);
+  // Priority outreach favors actionable events; commentary-grade types
+  // (general news, sentiment) never outrank a live M&A or hire.
+  const ACTIONABLE = new Set<SignalType>([
+    "ma", "hire", "intent", "succession", "compliance", "techstack",
+    "turnover", "expansion", "filing", "usage", "winloss",
+  ]);
+  const topFirms = companies
+    .map((c) => ({ company: c, signal: c.signals.find((s) => ACTIONABLE.has(s.type)) }))
+    .filter((x): x is { company: CompanyView; signal: (typeof x)["signal"] & {} } => Boolean(x.signal))
+    .slice(0, 6);
   const warmAll = companies.filter((c) => c.cpaTier);
   const counts = SIGNAL_TYPES.reduce<Record<string, number>>((acc, t) => {
     acc[t] = companies.filter((c) => c.signals.some((s) => s.type === t)).length;
@@ -199,17 +208,18 @@ export default function Dashboard({
           <section>
             <h2 className="section">Today&apos;s priority outreach</h2>
             <div className="feed-grid">
-              {topFirms.map((c) => (
+              {topFirms.map(({ company: c, signal }) => (
                 <button key={c.id} className="feed-card" onClick={() => setSelected(c)}>
                   <div className="feed-top">
                     <div className="nm">{c.name}</div>
-                    <Stamp type={c.signals[0].type} />
+                    <Stamp type={signal.type} />
                   </div>
                   <div className="feed-meta">
-                    {c.city}, {c.state} &middot; {c.size} &middot; {c.employees} employees
+                    {c.city}, {c.state} &middot; {c.size} &middot; {c.employees.toLocaleString()}{" "}
+                    employees
                   </div>
-                  <div className="feed-headline">{c.signals[0].headline}</div>
-                  <div className="feed-age">{age(c.signals[0].daysAgo)}</div>
+                  <div className="feed-headline">{signal.headline}</div>
+                  <div className="feed-age">{age(signal.daysAgo)}</div>
                 </button>
               ))}
             </div>
@@ -282,7 +292,7 @@ export default function Dashboard({
                         {c.city}, {c.state}
                       </td>
                       <td className="dim">{c.size}</td>
-                      <td className="num">{c.employees}</td>
+                      <td className="num">{c.employees.toLocaleString()}</td>
                       <td>
                         {c.signals.length > 0 ? (
                           <span className="sig-cell">
@@ -339,7 +349,7 @@ export default function Dashboard({
             </div>
 
             <div className="meta">
-              {selected.employees} employees &middot; Heat score {selected.heat}
+              {selected.employees.toLocaleString()} employees &middot; Heat score {selected.heat}
             </div>
 
             <div className="linkrow">
@@ -368,6 +378,16 @@ export default function Dashboard({
                   <div className="sig-pitch">
                     <b>Pitch angle</b> &middot; {s.pitch}
                   </div>
+                  {s.sourceUrl && (
+                    <a
+                      className="srclink"
+                      href={s.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View source ↗
+                    </a>
+                  )}
                 </div>
               ))}
             </div>

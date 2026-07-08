@@ -1,0 +1,97 @@
+name,city,state,size_tier,employee_count,cpa_com_id,cpa_affiliation_tier,website,linkedin_url
+Deloitte,New York,NY,National,170000,,,https://www.deloitte.com/us,https://www.linkedin.com/company/deloitte
+PwC,New York,NY,National,75000,,,https://www.pwc.com/us,https://www.linkedin.com/company/pwc
+EY,New York,NY,National,80000,,,https://www.ey.com/en_us,https://www.linkedin.com/company/ernstandyoung
+KPMG,New York,NY,National,40000,,,https://kpmg.com/us,https://www.linkedin.com/company/kpmg-us
+RSM US,Chicago,IL,National,17000,,,https://rsmus.com,https://www.linkedin.com/company/rsm-us-llp
+Baker Tilly,Chicago,IL,National,11000,,,https://www.bakertilly.com,https://www.linkedin.com/company/bakertillyus
+CBIZ,Cleveland,OH,National,10000,,,https://www.cbiz.com,https://www.linkedin.com/company/cbiz
+BDO USA,Chicago,IL,National,12000,,,https://www.bdo.com,https://www.linkedin.com/company/bdo-usa
+Forvis Mazars,Springfield,MO,National,7000,,,https://www.forvismazars.us,https://www.linkedin.com/company/forvis-mazars-us
+Grant Thornton,Chicago,IL,National,9000,,,https://www.grantthornton.com,https://www.linkedin.com/company/grant-thornton-llp
+Crowe,Chicago,IL,National,5000,,,https://www.crowe.com,https://www.linkedin.com/company/crowe
+CLA (CliftonLarsonAllen),Minneapolis,MN,National,9000,,,https://www.claconnect.com,https://www.linkedin.com/company/cliftonlarsonallen
+CohnReznick,New York,NY,National,3000,,,https://www.cohnreznick.com,https://www.linkedin.com/company/cohnreznick-llp
+EisnerAmper,New York,NY,National,4500,,,https://www.eisneramper.com,https://www.linkedin.com/company/eisneramper
+Cherry Bekaert,Raleigh,NC,National,2300,,,https://www.cbh.com,https://www.linkedin.com/company/cherrybekaert
+Moss Adams,Seattle,WA,National,4700,,,https://www.mossadams.com,https://www.linkedin.com/company/moss-adams
+Citrin Cooperman,New York,NY,National,3000,,,https://www.citrincooperman.com,https://www.linkedin.com/company/citrin-cooperman
+Armanino,San Ramon,CA,National,2700,,,https://www.armanino.com,https://www.linkedin.com/company/armanino
+Aprio,Atlanta,GA,National,2200,,,https://www.aprio.com,https://www.linkedin.com/company/aprio
+PKF O'Connor Davies,New York,NY,Regional,1500,,,https://www.pkfod.com,https://www.linkedin.com/company/pkf-o'connor-davies
+Sikich,Chicago,IL,National,2000,,,https://www.sikich.com,https://www.linkedin.com/company/sikich
+Plante Moran,Southfield,MI,National,3800,,,https://www.plantemoran.com,https://www.linkedin.com/company/plante-moran
+Carr Riggs & Ingram,Enterprise,AL,National,2300,,,https://www.cricpa.com,https://www.linkedin.com/company/carr-riggs-&-ingram
+Withum,Princeton,NJ,National,2500,,,https://www.withum.com,https://www.linkedin.com/company/withum
+Eide Bailly,Fargo,ND,National,3500,,,https://www.eidebailly.com,https://www.linkedin.com/company/eide-bailly-llp
+Wipfli,Milwaukee,WI,National,3300,,,https://www.wipfli.com,https://www.linkedin.com/company/wipfli-llp
+BPM,San Francisco,CA,Regional,1200,,,https://www.bpm.com,https://www.linkedin.com/company/bpm-llp
+Weaver,Houston,TX,National,1400,,,https://www.weaver.com,https://www.linkedin.com/company/weaverllp
+Kaufman Rossin,Miami,FL,Regional,700,,,https://www.kaufmanrossin.com,https://www.linkedin.com/company/kaufman-rossin
+Rehmann,Troy,MI,Regional,1000,,,https://www.rehmann.com,https://www.linkedin.com/company/rehmann
+RubinBrown,St. Louis,MO,Regional,800,,,https://www.rubinbrown.com,https://www.linkedin.com/company/rubinbrown
+UHY Advisors,Chicago,IL,National,1700,,,https://uhy-us.com,https://www.linkedin.com/company/uhy-llp
+Whitley Penn,Fort Worth,TX,Regional,1000,,,https://www.whitleypenn.com,https://www.linkedin.com/company/whitley-penn
+Doeren Mayhew,Troy,MI,Regional,600,,,https://www.doeren.com,https://www.linkedin.com/company/doeren-mayhew
+Warren Averett,Birmingham,AL,Regional,900,,,https://www.warrenaverett.com,https://www.linkedin.com/company/warren-averett
+Sensiba,Pleasanton,CA,Regional,350,,,https://www.sensiba.com,https://www.linkedin.com/company/sensiba
+Lutz,Omaha,NE,Regional,350,,,https://www.lutz.us,https://www.linkedin.com/company/lutz
+Clark Nuber,Bellevue,WA,Regional,300,,,https://www.clarknuber.com,https://www.linkedin.com/company/clark-nuber
+Frazier & Deeter,Atlanta,GA,Regional,600,,,https://www.frazierdeeter.com,https://www.linkedin.com/company/frazier-&-deeter
+Berkowitz Pollack Brant,Miami,FL,Regional,400,,,https://www.bpbcpa.com,https://www.linkedin.com/company/berkowitz-pollack-brant
+Marcum,New York,NY,National,4000,,,https://www.marcumllp.com,https://www.linkedin.com/company/marcum-llp
+GHJ,Los Angeles,CA,Regional,500,,,https://www.ghjadvisors.com,https://www.linkedin.com/company/ghj
+Mahoney,St. Paul,MN,Local,150,,,https://www.mahoneycpa.com,
+Schneider Downs,Pittsburgh,PA,Regional,600,,,https://www.schneiderdowns.com,https://www.linkedin.com/company/schneider-downs
+Baker Newman Noyes,Portland,ME,Regional,300,,,https://www.bnncpa.com,https://www.linkedin.com/company/baker-newman-noyes
+CSH (Clark Schaefer Hackett),Cincinnati,OH,Regional,500,,,https://www.cshco.com,https://www.linkedin.com/company/clark-schaefer-hackett
+Blue & Co.,Carmel,IN,Regional,500,,,https://www.blueandco.com,https://www.linkedin.com/company/blue-&-co-llc
+MGO,Los Angeles,CA,Regional,700,,,https://www.mgocpa.com,https://www.linkedin.com/company/mgo-cpa
+RRBB,Somerset,NJ,Local,120,,,https://www.rrbb.com,
+MCM CPAs & Advisors,Louisville,KY,Regional,500,,,https://www.mcmcpa.com,https://www.linkedin.com/company/mcm-cpas-&-advisors
+Anders,St. Louis,MO,Regional,450,,,https://www.anderscpa.com,https://www.linkedin.com/company/anders-cpas-advisors
+Dean Dorton,Lexington,KY,Regional,600,,,https://www.deandorton.com,https://www.linkedin.com/company/dean-dorton
+KSM (Katz Sapper & Miller),Indianapolis,IN,Regional,450,,,https://www.ksmcpa.com,https://www.linkedin.com/company/katz-sapper-&-miller
+LBMC,Nashville,TN,Regional,900,,,https://www.lbmc.com,https://www.linkedin.com/company/lbmc
+Postlethwaite & Netterville,Baton Rouge,LA,Regional,500,,,https://www.pncpa.com,https://www.linkedin.com/company/postlethwaite-&-netterville
+Johnson Lambert,Vienna,VA,Regional,250,,,https://www.johnsonlambert.com,https://www.linkedin.com/company/johnson-lambert-llp
+HCVT,Los Angeles,CA,Regional,800,,,https://www.hcvt.com,https://www.linkedin.com/company/hcvt
+SingerLewak,Los Angeles,CA,Regional,400,,,https://www.singerlewak.com,https://www.linkedin.com/company/singerlewak
+Wiss,Florham Park,NJ,Regional,250,,,https://www.wiss.com,https://www.linkedin.com/company/wiss-&-company-llp
+Anchin,New York,NY,Regional,450,,,https://www.anchin.com,https://www.linkedin.com/company/anchin
+Marks Paneth,New York,NY,Regional,600,,,https://www.markspaneth.com,
+Kemper CPA Group,Evansville,IN,Regional,350,,,https://www.kempercpa.com,https://www.linkedin.com/company/kemper-cpa-group-llp
+Kerkering Barberio,Sarasota,FL,Local,100,,,https://www.kbgrp.com,
+Belfint Lyons Shuman,Wilmington,DE,Local,100,,,https://www.belfint.com,https://www.linkedin.com/company/belfint-lyons-&-shuman
+GRF CPAs & Advisors,Bethesda,MD,Local,150,,,https://www.grfcpa.com,https://www.linkedin.com/company/grf-cpas-&-advisors
+REDW,Albuquerque,NM,Regional,300,,,https://www.redw.com,https://www.linkedin.com/company/redw-llc
+Herbein,Reading,PA,Regional,250,,,https://www.herbein.com,https://www.linkedin.com/company/herbein-+-company-inc-
+Sorren,Boise,ID,Regional,600,,,https://www.sorren.com,https://www.linkedin.com/company/sorren
+H&CO,Miami,FL,Regional,300,,,https://www.hco.com,https://www.linkedin.com/company/h&co-llp
+Moss Krusick,Winter Park,FL,Local,80,,,https://www.mosskrusick.com,
+BeachFleischman,Tucson,AZ,Regional,250,,,https://www.beachfleischman.com,https://www.linkedin.com/company/beachfleischman-pllc
+Elliott Davis,Greenville,SC,Regional,800,,,https://www.elliottdavis.com,https://www.linkedin.com/company/elliott-davis
+DMJPS,Greensboro,NC,Local,150,,,https://www.dmjps.com,
+Waldron,Pittsburgh,PA,Local,80,,,,
+Dixon Hughes Goodman (legacy),Charlotte,NC,National,2000,,,,
+RKL,Lancaster,PA,Regional,600,,,https://www.rklcpa.com,https://www.linkedin.com/company/rkl-llp
+Lurie,Minneapolis,MN,Local,250,,,https://www.luriellp.com,
+Cohen & Company,Cleveland,OH,Regional,800,,,https://www.cohencpa.com,https://www.linkedin.com/company/cohen-&-company
+Prager Metis,New York,NY,Regional,600,,,https://www.pragermetis.com,https://www.linkedin.com/company/prager-metis-cpas
+Windham Brannon,Atlanta,GA,Local,200,,,https://www.windhambrannon.com,https://www.linkedin.com/company/windham-brannon
+KDP Advisors,Medford,OR,Local,100,,,https://www.kdpllp.com,
+BerryDunn,Portland,ME,Regional,800,,,https://www.berrydunn.com,https://www.linkedin.com/company/berrydunn
+Krohn,Green Bay,WI,Local,60,,,,
+BMF (Bober Markey Fedorovich),Akron,OH,Local,120,,,https://www.bmf.cpa,
+Abdo,Minneapolis,MN,Local,200,,,https://www.abdosolutions.com,https://www.linkedin.com/company/abdo-solutions
+Suttle & Stalnaker,Charleston,WV,Local,100,,,https://www.suttlecpas.com,
+EFP Rotenberg,Rochester,NY,Local,120,,,https://www.efprgroup.com,
+HBK CPAs & Consultants,Canfield,OH,Regional,800,,,https://www.hbkcpa.com,https://www.linkedin.com/company/hbk-cpas-&-consultants
+Kearney & Company,Alexandria,VA,Regional,700,,,https://www.kearneyco.com,https://www.linkedin.com/company/kearney-&-company
+James Moore & Co.,Gainesville,FL,Regional,350,,,https://www.jmco.com,https://www.linkedin.com/company/james-moore-&-co
+PKF Texas,Houston,TX,Local,150,,,https://www.pkftexas.com,
+SS&G (legacy),Cleveland,OH,Regional,500,,,,
+Aronson,Rockville,MD,Regional,350,,,https://www.aronsonllc.com,
+MNP US (Meyers Norris Penny),Minneapolis,MN,Regional,300,,,https://www.mnp.ca,
+Bland Garvey,Richardson,TX,Local,50,,,https://www.blandgarvey.com,
+VonLehman,Fort Mitchell,KY,Local,250,,,https://www.vlcpa.com,

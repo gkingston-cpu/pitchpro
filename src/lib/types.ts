@@ -28,6 +28,7 @@ export interface SignalView {
   headline: string;
   pitch: string;
   daysAgo: number;
+  sourceUrl: string | null;
 }
 
 export interface CompanyView {

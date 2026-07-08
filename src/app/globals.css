@@ -637,6 +637,17 @@ td.num {
   color: var(--gold-text);
   font-weight: 700;
 }
+.srclink {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold-text);
+  text-decoration: none;
+}
+.srclink:hover {
+  text-decoration: underline;
+}
 .closebtn {
   background: none;
   border: none;

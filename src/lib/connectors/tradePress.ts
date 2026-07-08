@@ -26,6 +26,9 @@ export const tradePressConnector: Connector = {
       try {
         const feed = await parser.parseURL(feedUrl);
         for (const item of feed.items ?? []) {
+          // Skip multi-firm link roundups — one headline about many firms is
+          // noise in a per-firm sales feed.
+          if (/friday footnotes|news brief|weekly roundup/i.test(item.title ?? "")) continue;
           const text = `${item.title ?? ""} ${item.contentSnippet ?? ""}`;
           const company = matchCompany(text, companies);
           if (!company || !item.link) continue;

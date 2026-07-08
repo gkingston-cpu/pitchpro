@@ -4,22 +4,43 @@ import type { SignalType } from "../types";
 const GENERIC_SUFFIX =
   /\s+(&\s+\w+|group|partners|advisory|financial|cpas?|associates|llp|llc|& co\.?)$/i;
 
+function escapeRe(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Word-boundary test so short real-world names stay safe: "Anders" must not
+// match "Anderson", "Wiss" must not match "Swiss", "EY" must not match "they".
+function containsName(haystack: string, name: string): boolean {
+  return new RegExp(`(?<![\\w&])${escapeRe(name)}(?![\\w&])`, "i").test(haystack);
+}
+
+// Strip parentheticals and legacy markers so "CLA (CliftonLarsonAllen)" also
+// matches articles that say just "CLA" or just "CliftonLarsonAllen".
+function nameVariants(name: string): string[] {
+  const variants = new Set<string>([name]);
+  const paren = name.match(/^(.*?)\s*\((.*?)\)\s*(?:$)/);
+  if (paren) {
+    if (paren[1].trim()) variants.add(paren[1].trim());
+    if (paren[2].trim() && paren[2].trim().toLowerCase() !== "legacy") variants.add(paren[2].trim());
+  }
+  return [...variants];
+}
+
 /**
- * Find which tracked firm (if any) a piece of text is about. Matches on the
- * full firm name first, then on the distinctive leading portion of the name
- * when it's long enough to be unambiguous.
+ * Find which tracked firm (if any) a piece of text is about. Matches whole
+ * names (and parenthetical variants) first, then the distinctive leading
+ * portion of the name when it's long enough to be unambiguous.
  */
 export function matchCompany(
   text: string,
   companies: { id: number; name: string }[],
 ): { id: number; name: string } | null {
-  const haystack = text.toLowerCase();
   for (const c of companies) {
-    if (haystack.includes(c.name.toLowerCase())) return c;
+    if (nameVariants(c.name).some((v) => containsName(text, v))) return c;
   }
   for (const c of companies) {
-    const stem = c.name.replace(GENERIC_SUFFIX, "").trim().toLowerCase();
-    if (stem.length >= 8 && haystack.includes(stem)) return c;
+    const stem = c.name.replace(GENERIC_SUFFIX, "").trim();
+    if (stem.length >= 8 && stem !== c.name && containsName(text, stem)) return c;
   }
   return null;
 }

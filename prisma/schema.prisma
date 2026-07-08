@@ -60,6 +60,8 @@ model Signal {
   // Event date the signal refers to; "days ago" is computed from this at read time.
   occurredAt       DateTime @default(now())
   heatContribution Int      @default(0)
+  // Link to the article/posting the signal came from, when available.
+  sourceUrl        String?
   createdAt        DateTime @default(now())
   company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 

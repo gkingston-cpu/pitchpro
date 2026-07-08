@@ -41,6 +41,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         headline: s.headline,
         pitch: s.pitchAngle,
         daysAgo: daysAgo(s.occurredAt, now),
+        sourceUrl: s.sourceUrl,
       })),
       heat: c.signals.reduce((acc, s) => acc + s.heatContribution, 0),
       cpaTier: c.cpaAffiliationTier

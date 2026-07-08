@@ -145,8 +145,19 @@ export async function runSynthesis(): Promise<SynthesisResult> {
         ? await synthesizeCompany(client, rawSignals[0].company.name, rawSignals)
         : fallbackSynthesis(rawSignals);
 
-      for (const s of synthesized) {
-        const occurredAt = rawSignals[0].detectedAt;
+      for (let i = 0; i < synthesized.length; i++) {
+        const s = synthesized[i];
+        // Best-effort provenance: pair each output with the raw signal at the
+        // same position (fallback synthesis is 1:1; the LLM usually is too).
+        const raw = rawSignals[i] ?? rawSignals[0];
+        const occurredAt = raw.detectedAt;
+        let sourceUrl: string | null = null;
+        try {
+          const payload = JSON.parse(raw.rawPayload) as { link?: string; url?: string };
+          sourceUrl = payload.link ?? payload.url ?? null;
+        } catch {
+          /* no link available */
+        }
         await prisma.signal.create({
           data: {
             companyId,
@@ -156,6 +167,7 @@ export async function runSynthesis(): Promise<SynthesisResult> {
             confidence: s.confidence,
             occurredAt,
             heatContribution: heatContribution(s.type, daysAgo(occurredAt)),
+            sourceUrl,
           },
         });
         signalsCreated++;
@@ -223,13 +235,32 @@ Write one tight paragraph (3-5 sentences, plain prose, no markdown): name the to
       .join("")
       .trim();
   } else {
-    const lead = top[0];
-    summaryText =
-      `${top.length} firm${top.length === 1 ? "" : "s"} show fresh signal activity this cycle.` +
-      (lead ? ` ${lead.name} is the top priority — ${lead.signals[0].headline.toLowerCase()}.` : "") +
-      (warmCount > 0
-        ? ` ${warmCount} tracked firms are already CPA.com-affiliated — treat these as warm, low-friction intros regardless of other activity.`
-        : "");
+    // Rule-based composition: lead with the hottest actionable firm, then the
+    // cycle's M&A count, then the warm-account reminder.
+    const ACTIONABLE = new Set(["ma", "hire", "intent", "succession", "compliance", "techstack", "turnover", "expansion"]);
+    const lead =
+      top.find((c) => c.signals.some((s) => ACTIONABLE.has(s.signalType))) ?? top[0];
+    const leadSignal = lead?.signals.find((s) => ACTIONABLE.has(s.signalType)) ?? lead?.signals[0];
+    const maFirms = new Set(
+      top.filter((c) => c.signals.some((s) => s.signalType === "ma")).map((c) => c.name),
+    );
+    const parts: string[] = [
+      `${top.length} firm${top.length === 1 ? "" : "s"} show fresh signal activity this cycle.`,
+    ];
+    if (lead && leadSignal) {
+      parts.push(`Top priority: ${lead.name} — ${leadSignal.headline.replace(/\.$/, "")}.`);
+    }
+    if (maFirms.size > 1) {
+      parts.push(
+        `${maFirms.size} firms have live M&A or investment activity — post-deal integration is the strongest window for a systems-consolidation pitch.`,
+      );
+    }
+    if (warmCount > 0) {
+      parts.push(
+        `${warmCount} tracked firm${warmCount === 1 ? "" : "s"} are already CPA.com-affiliated — treat those as warm, low-friction intros regardless of other activity.`,
+      );
+    }
+    summaryText = parts.join(" ");
   }
 
   await prisma.brief.create({
