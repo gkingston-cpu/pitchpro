@@ -1,6 +1,6 @@
-# PitchPro — CPA.com Affiliate Signal Dashboard
+# PitchPro — Market Radar (CPA.com Affiliate Signal Dashboard)
 
-A shared sales-intelligence dashboard ("The Ledger") for two salespeople covering the top
+A shared sales-intelligence dashboard ("Market Radar") for two salespeople covering the top
 ~1,000 CPA.com affiliate firms. A twice-weekly job (Monday & Wednesday mornings) pulls fresh
 buying signals per firm, a Claude-powered synthesis step turns them into a headline, a
 suggested pitch angle, and a heat score, and CPA.com-affiliated firms are flagged as warm,

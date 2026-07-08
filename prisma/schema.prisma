@@ -80,6 +80,19 @@ model Brief {
   @@map("daily_briefs")
 }
 
+// General SQMS / quality-management headlines shown in the market-watch rail —
+// not tied to any one firm, refreshed alongside the per-firm signals.
+model MarketNews {
+  id          Int       @id @default(autoincrement())
+  title       String
+  source      String
+  url         String    @unique
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@map("market_news")
+}
+
 // Per-source log lines from each refresh, so one broken source is visible without blocking the rest.
 model ConnectorRun {
   id         Int      @id @default(autoincrement())

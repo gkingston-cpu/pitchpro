@@ -7,7 +7,7 @@ import "./globals.css";
 const dmSans = DM_Sans({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "The Ledger — FinReg Signal Dashboard",
+  title: "Market Radar — FinReg Signal Dashboard",
   description:
     "Sales intelligence for the CPA.com affiliate network, refreshed Monday and Wednesday mornings.",
 };

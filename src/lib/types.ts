@@ -48,9 +48,17 @@ export interface CompanyView {
   linkedin: string;
 }
 
+export interface MarketNewsItem {
+  title: string;
+  source: string;
+  url: string;
+  published: string | null; // e.g. "Aug 2025"
+}
+
 export interface DashboardData {
   companies: CompanyView[];
   totalTracked: number;
   brief: { text: string; generatedAt: string } | null;
   lastRefreshAt: string | null;
+  marketNews: MarketNewsItem[];
 }

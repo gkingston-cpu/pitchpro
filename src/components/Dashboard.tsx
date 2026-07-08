@@ -166,7 +166,7 @@ export default function Dashboard({
           <img src="/finreg-logo-white.png" alt="FinReg Global" />
           <div className="divider" />
           <div className="app">
-            <b>The Ledger</b>
+            <b>Market Radar</b>
             <span>CPA.com Affiliate Signals &middot; Mon/Wed Brief</span>
           </div>
         </div>
@@ -361,8 +361,37 @@ export default function Dashboard({
           </div>
         </div>
 
+        {data.marketNews.length > 0 && (
+          <section>
+            <h2 className="section">SQMS market watch</h2>
+            <p className="newsintro">
+              First annual quality-management system evaluations are due{" "}
+              <b>December 15, 2026</b> under SQMS No. 1 — deadline pressure worth referencing in
+              every conversation.
+            </p>
+            <div className="newsgrid">
+              {data.marketNews.map((n) => (
+                <a
+                  key={n.url}
+                  className="newscard"
+                  href={n.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="newssrc">
+                    {n.source}
+                    {n.published ? ` · ${n.published}` : ""}
+                  </span>
+                  <span className="newstitle">{n.title}</span>
+                  <span className="newsgo">Read ↗</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+
         <div className="foot">
-          The Ledger refreshes automatically every Monday and Wednesday morning from CPA.com
+          Market Radar refreshes automatically every Monday and Wednesday morning from CPA.com
           affiliate records, trade press, news, and job-board sources.
         </div>
       </div>

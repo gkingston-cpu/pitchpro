@@ -16,7 +16,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const since = new Date(Date.now() - HORIZON_DAYS * 86_400_000);
   const now = new Date();
 
-  const [companies, brief, lastRun] = await Promise.all([
+  const [companies, brief, lastRun, marketNews] = await Promise.all([
     prisma.company.findMany({
       include: {
         signals: { where: { occurredAt: { gte: since } }, orderBy: { occurredAt: "desc" } },
@@ -24,6 +24,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     }),
     prisma.brief.findFirst({ orderBy: { briefDate: "desc" } }),
     prisma.connectorRun.findFirst({ where: { ok: true }, orderBy: { startedAt: "desc" } }),
+    prisma.marketNews.findMany({ orderBy: [{ publishedAt: "desc" }], take: 8 }),
   ]);
 
   const views: CompanyView[] = companies
@@ -66,5 +67,13 @@ export async function getDashboardData(): Promise<DashboardData> {
       ? { text: brief.summaryText, generatedAt: brief.briefDate.toISOString() }
       : null,
     lastRefreshAt: lastRun?.startedAt.toISOString() ?? null,
+    marketNews: marketNews.map((n) => ({
+      title: n.title,
+      source: n.source,
+      url: n.url,
+      published: n.publishedAt
+        ? n.publishedAt.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+        : null,
+    })),
   };
 }
